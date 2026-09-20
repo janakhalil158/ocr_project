@@ -1,0 +1,21 @@
+# Phase 1 dependencies.
+# PDF parsing, rendering, and metadata extraction.
+PyMuPDF>=1.24.0
+
+# Phase 2 dependencies.
+# Classical computer-vision metrics (blur, skew, contrast, noise).
+# NOTE: opencv-python-headless versions below ~4.9 were built against
+# NumPy 1.x and will fail to import under NumPy 2.x (AttributeError:
+# _ARRAY_API not found). If you must pin an older OpenCV, also pin
+# numpy<2 to match; otherwise use the versions below as-is.
+opencv-python-headless>=4.9.0
+numpy>=1.26.0
+
+# Phase 4 dependencies.
+# Python wrapper around the Tesseract OCR engine. The Tesseract
+# executable itself is a separate, OS-level install (e.g. `brew
+# install tesseract` on macOS) — this package alone is not enough.
+pytesseract>=0.3.10
+
+# Testing framework.
+pytest>=8.0.0

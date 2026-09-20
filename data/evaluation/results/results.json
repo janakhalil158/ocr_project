@@ -1,0 +1,174 @@
+{
+  "summary": {
+    "engine": "tesseract",
+    "total_samples": 7,
+    "successful_samples": 7,
+    "failed_samples": 0,
+    "average_cer": 0.040351373710105796,
+    "average_wer": 0.09047619047619047,
+    "median_cer": 0.0,
+    "median_wer": 0.0,
+    "average_confidence": 93.50543831168831,
+    "average_processing_time_ms": 412.239555142858,
+    "fastest_sample": "arabic_blurry_001",
+    "slowest_sample": "english_clean_001",
+    "by_category": {
+      "arabic": {
+        "samples": 1,
+        "average_cer": 0.0,
+        "average_wer": 0.0,
+        "average_confidence": 91.75,
+        "average_processing_time_ms": 163.9004970000002
+      },
+      "blurry": {
+        "samples": 2,
+        "average_cer": 0.0,
+        "average_wer": 0.0,
+        "average_confidence": 93.33333333333334,
+        "average_processing_time_ms": 297.8974139999977
+      },
+      "clean": {
+        "samples": 1,
+        "average_cer": 0.0,
+        "average_wer": 0.0,
+        "average_confidence": 95.56666666666666,
+        "average_processing_time_ms": 828.8807259999942
+      },
+      "low_contrast": {
+        "samples": 1,
+        "average_cer": 0.0,
+        "average_wer": 0.0,
+        "average_confidence": 95.46666666666667,
+        "average_processing_time_ms": 428.2433260000076
+      },
+      "mixed_language": {
+        "samples": 1,
+        "average_cer": 0.04411764705882353,
+        "average_wer": 0.3,
+        "average_confidence": 91.18181818181819,
+        "average_processing_time_ms": 442.90566200000114
+      },
+      "skewed": {
+        "samples": 1,
+        "average_cer": 0.23834196891191708,
+        "average_wer": 0.3333333333333333,
+        "average_confidence": 93.90625,
+        "average_processing_time_ms": 425.95184700000743
+      }
+    }
+  },
+  "results": [
+    {
+      "dataset_id": "english_clean_001",
+      "engine": "tesseract",
+      "language": "eng",
+      "category": "clean",
+      "reference_text_length": 193,
+      "recognized_text_length": 193,
+      "reference_word_count": 30,
+      "recognized_word_count": 30,
+      "cer": 0.0,
+      "wer": 0.0,
+      "ocr_confidence": 95.56666666666666,
+      "processing_time_ms": 828.8807259999942,
+      "success": true,
+      "error": null
+    },
+    {
+      "dataset_id": "english_blurry_001",
+      "engine": "tesseract",
+      "language": "eng",
+      "category": "blurry",
+      "reference_text_length": 193,
+      "recognized_text_length": 193,
+      "reference_word_count": 30,
+      "recognized_word_count": 30,
+      "cer": 0.0,
+      "wer": 0.0,
+      "ocr_confidence": 95.66666666666667,
+      "processing_time_ms": 447.7405129999994,
+      "success": true,
+      "error": null
+    },
+    {
+      "dataset_id": "english_low_contrast_001",
+      "engine": "tesseract",
+      "language": "eng",
+      "category": "low_contrast",
+      "reference_text_length": 193,
+      "recognized_text_length": 193,
+      "reference_word_count": 30,
+      "recognized_word_count": 30,
+      "cer": 0.0,
+      "wer": 0.0,
+      "ocr_confidence": 95.46666666666667,
+      "processing_time_ms": 428.2433260000076,
+      "success": true,
+      "error": null
+    },
+    {
+      "dataset_id": "english_skewed_001",
+      "engine": "tesseract",
+      "language": "eng",
+      "category": "skewed",
+      "reference_text_length": 193,
+      "recognized_text_length": 195,
+      "reference_word_count": 30,
+      "recognized_word_count": 32,
+      "cer": 0.23834196891191708,
+      "wer": 0.3333333333333333,
+      "ocr_confidence": 93.90625,
+      "processing_time_ms": 425.95184700000743,
+      "success": true,
+      "error": null
+    },
+    {
+      "dataset_id": "arabic_clean_001",
+      "engine": "tesseract",
+      "language": "ara",
+      "category": "arabic",
+      "reference_text_length": 72,
+      "recognized_text_length": 72,
+      "reference_word_count": 12,
+      "recognized_word_count": 12,
+      "cer": 0.0,
+      "wer": 0.0,
+      "ocr_confidence": 91.75,
+      "processing_time_ms": 163.9004970000002,
+      "success": true,
+      "error": null
+    },
+    {
+      "dataset_id": "arabic_blurry_001",
+      "engine": "tesseract",
+      "language": "ara",
+      "category": "blurry",
+      "reference_text_length": 72,
+      "recognized_text_length": 72,
+      "reference_word_count": 12,
+      "recognized_word_count": 12,
+      "cer": 0.0,
+      "wer": 0.0,
+      "ocr_confidence": 91.0,
+      "processing_time_ms": 148.054314999996,
+      "success": true,
+      "error": null
+    },
+    {
+      "dataset_id": "mixed_language_001",
+      "engine": "tesseract",
+      "language": "ara+eng",
+      "category": "mixed_language",
+      "reference_text_length": 68,
+      "recognized_text_length": 69,
+      "reference_word_count": 10,
+      "recognized_word_count": 11,
+      "cer": 0.04411764705882353,
+      "wer": 0.3,
+      "ocr_confidence": 91.18181818181819,
+      "processing_time_ms": 442.90566200000114,
+      "success": true,
+      "error": null
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+dataset_id,engine,language,category,reference_text_length,recognized_text_length,reference_word_count,recognized_word_count,cer,wer,ocr_confidence,processing_time_ms,success,error
+english_clean_001,tesseract,eng,clean,193,193,30,30,0.0,0.0,95.56666666666666,828.8807259999942,True,
+english_blurry_001,tesseract,eng,blurry,193,193,30,30,0.0,0.0,95.66666666666667,447.7405129999994,True,
+english_low_contrast_001,tesseract,eng,low_contrast,193,193,30,30,0.0,0.0,95.46666666666667,428.2433260000076,True,
+english_skewed_001,tesseract,eng,skewed,193,195,30,32,0.23834196891191708,0.3333333333333333,93.90625,425.95184700000743,True,
+arabic_clean_001,tesseract,ara,arabic,72,72,12,12,0.0,0.0,91.75,163.9004970000002,True,
+arabic_blurry_001,tesseract,ara,blurry,72,72,12,12,0.0,0.0,91.0,148.054314999996,True,
+mixed_language_001,tesseract,ara+eng,mixed_language,68,69,10,11,0.04411764705882353,0.3,91.18181818181819,442.90566200000114,True,

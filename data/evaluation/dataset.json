@@ -1,0 +1,61 @@
+{
+  "description": "OCR evaluation dataset. Ground truth for these synthetic samples is known by construction (the source text was rendered to the image by scripts/generate_evaluation_samples.py), NOT transcribed from OCR output. Real-document samples added later must have their ground truth transcribed and verified by a human.",
+  "samples": [
+    {
+      "id": "english_clean_001",
+      "image": "images/english_clean_001.png",
+      "ground_truth": "ground_truth/english_clean_001.txt",
+      "language": "eng",
+      "category": "clean",
+      "notes": "synthetic; ground truth known by construction"
+    },
+    {
+      "id": "english_blurry_001",
+      "image": "images/english_blurry_001.png",
+      "ground_truth": "ground_truth/english_blurry_001.txt",
+      "language": "eng",
+      "category": "blurry",
+      "notes": "synthetic; ground truth known by construction"
+    },
+    {
+      "id": "english_low_contrast_001",
+      "image": "images/english_low_contrast_001.png",
+      "ground_truth": "ground_truth/english_low_contrast_001.txt",
+      "language": "eng",
+      "category": "low_contrast",
+      "notes": "synthetic; ground truth known by construction"
+    },
+    {
+      "id": "english_skewed_001",
+      "image": "images/english_skewed_001.png",
+      "ground_truth": "ground_truth/english_skewed_001.txt",
+      "language": "eng",
+      "category": "skewed",
+      "notes": "synthetic; ground truth known by construction"
+    },
+    {
+      "id": "arabic_clean_001",
+      "image": "images/arabic_clean_001.png",
+      "ground_truth": "ground_truth/arabic_clean_001.txt",
+      "language": "ara",
+      "category": "arabic",
+      "notes": "synthetic; ground truth known by construction"
+    },
+    {
+      "id": "arabic_blurry_001",
+      "image": "images/arabic_blurry_001.png",
+      "ground_truth": "ground_truth/arabic_blurry_001.txt",
+      "language": "ara",
+      "category": "blurry",
+      "notes": "synthetic; ground truth known by construction"
+    },
+    {
+      "id": "mixed_language_001",
+      "image": "images/mixed_language_001.png",
+      "ground_truth": "ground_truth/mixed_language_001.txt",
+      "language": "ara+eng",
+      "category": "mixed_language",
+      "notes": "synthetic; ground truth known by construction"
+    }
+  ]
+}
