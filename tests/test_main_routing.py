@@ -85,21 +85,38 @@ class TestTextPDFRouting:
         assert "IMAGE QUALITY ASSESSMENT" not in captured.out
 
 
+class _FakeScannedPathEngine:
+    """
+    Minimal stand-in :class:`~src.ocr.base.OCREngine` used only to keep
+    this test offline/deterministic. This test's purpose is confirming
+    the SCANNED_PDF execution path (quality -> preprocessing -> OCR)
+    still runs unchanged; it isn't about which engine is configured,
+    and must not construct a real Unlimited-OCR engine (which would
+    try to download/load a 6+ GB model on first use).
+    """
+
+    name = "fake"
+
+    def recognize_raw(self, image, language):
+        return {
+            "text": ["FAKE"],
+            "conf": [90.0],
+            "left": [0],
+            "top": [0],
+            "width": [10],
+            "height": [10],
+            "block_num": [1],
+            "par_num": [1],
+            "line_num": [1],
+        }
+
+
 class TestScannedPDFRouting:
     def test_scanned_path_still_runs_quality_preprocessing_ocr(
         self, scanned_pdf_path: Path, capsys, monkeypatch
     ) -> None:
-        # Force Tesseract for this check, regardless of OCRConfig's
-        # configured default engine (now "easyocr" -- see
-        # src/ocr/easyocr_ocr.py). This test's purpose is confirming the
-        # SCANNED_PDF execution path (quality -> preprocessing -> OCR)
-        # still runs unchanged; it isn't about which engine is default,
-        # and must stay offline/deterministic rather than constructing a
-        # real EasyOCR reader (which downloads models on first use).
-        from src.ocr.tesseract_ocr import TesseractOCREngine
-
         monkeypatch.setattr(
-            ocr_factory, "get_ocr_engine", lambda *a, **k: TesseractOCREngine()
+            ocr_factory, "get_ocr_engine", lambda *a, **k: _FakeScannedPathEngine()
         )
 
         exit_code = print_report(str(scanned_pdf_path))

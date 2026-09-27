@@ -37,7 +37,7 @@ PaddleOCR with no changes here.
 Run with::
 
     python -m src.ocr.evaluation
-    python -m src.ocr.evaluation --engine tesseract --dataset data/evaluation/dataset.json
+    python -m src.ocr.evaluation --engine unlimited --dataset data/evaluation/dataset.json
 """
 
 from __future__ import annotations

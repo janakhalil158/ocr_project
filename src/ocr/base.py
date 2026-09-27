@@ -5,15 +5,15 @@ This is the seam that lets the OCR architecture stay engine-independent:
 
     OCREngine (this module)
          |
-         +-- TesseractOCREngine  (src/ocr/tesseract_ocr.py) -- implemented now
-         |
-         +-- PaddleOCREngine     (future, e.g. on the GPU-equipped PC)
-                                     -- not implemented yet, intentionally
+         +-- UnlimitedOCREngine  (src/ocr/unlimited_ocr.py) -- the
+                                     project's only implementation
 
 Engines are selected by name through :mod:`src.ocr.factory` (e.g.
-``get_ocr_engine("tesseract")``), driven by ``OCRConfig.engine`` /
+``get_ocr_engine("unlimited")``), driven by ``OCRConfig.engine`` /
 the ``OCR_ENGINE`` environment variable, rather than being hardcoded
-anywhere in the pipeline.
+anywhere in the pipeline. This indirection is kept even with a single
+engine so a config-driven name that isn't recognized still fails with
+a clear, controlled error instead of the pipeline hardcoding a class.
 
 Everything above the engine boundary (:mod:`src.ocr.ocr` — word
 filtering, text reconstruction, confidence calculation, error

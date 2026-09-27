@@ -7,7 +7,7 @@ PDF loading
     -> page classification
     -> native text extraction when possible
     -> native text quality check
-    -> EasyOCR fallback when native extraction is unreliable
+    -> Unlimited-OCR fallback when native extraction is unreliable
     -> image quality assessment for scanned pages
     -> preprocessing
     -> OCR
@@ -337,7 +337,7 @@ def _run_ocr(
     return ocr_result
 
 
-def _run_easyocr_fallback(
+def _run_ocr_fallback(
     pdf_path: str,
     page_number: int,
     engine: Optional[OCREngine],
@@ -352,7 +352,7 @@ def _run_easyocr_fallback(
         "Native extraction appears unreliable."
     )
     print(
-        "Falling back to EasyOCR..."
+        "Falling back to Unlimited-OCR..."
     )
     print()
 
@@ -437,7 +437,7 @@ def _run_native_text_extraction(
     print(separator)
     print()
 
-    # Build EasyOCR once.
+    # Build the OCR engine once.
     ocr_engine: Optional[OCREngine] = None
     ocr_engine_error: Optional[
         OCREngineNotAvailableError
@@ -521,7 +521,7 @@ def _run_native_text_extraction(
 
         else:
 
-            _run_easyocr_fallback(
+            _run_ocr_fallback(
                 pdf_path,
                 page.page_number,
                 engine=ocr_engine,

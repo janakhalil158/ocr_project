@@ -12,10 +12,25 @@ opencv-python-headless>=4.9.0
 numpy>=1.26.0
 
 # Phase 4 dependencies.
-# Python wrapper around the Tesseract OCR engine. The Tesseract
-# executable itself is a separate, OS-level install (e.g. `brew
-# install tesseract` on macOS) — this package alone is not enough.
-pytesseract>=0.3.10
+# Baidu Unlimited-OCR (src/ocr/unlimited_ocr.py) is the project's only
+# OCR engine, loaded via Hugging Face `transformers` with
+# trust_remote_code=True. Versions below match this model family's own
+# tested requirements (see its model card) — install torch matching
+# your CUDA version first if the plain `torch` wheel below doesn't
+# pick up GPU support automatically (e.g. via the extra index URL
+# https://download.pytorch.org/whl for your CUDA release).
+torch>=2.10.0
+torchvision>=0.25.0
+transformers>=4.57.1
+accelerate>=0.30.0
+Pillow>=12.1.1
+einops>=0.8.2
+addict>=2.4.0
+easydict>=1.13
+huggingface_hub>=0.24.0
+
+# Streamlit UI (ui/app.py).
+streamlit>=1.35.0
 
 # Testing framework.
 pytest>=8.0.0

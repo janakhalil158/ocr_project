@@ -86,9 +86,10 @@ class PageOCRResult:
 
     ``language`` is the language configuration the engine was actually
     run with (e.g. ``"ara+eng"``); ``engine`` is that engine's name
-    (e.g. ``"tesseract"``); ``metadata`` carries any remaining
-    engine-level detail (PSM/OEM, etc.) that callers may want for
-    logging/debugging without cluttering the core fields.
+    (e.g. ``"unlimited_ocr"``); ``metadata`` carries any remaining
+    engine-level detail (for Unlimited-OCR: detected region types,
+    table HTML, whether the reported confidence is genuine) that
+    callers may want without cluttering the core fields.
     """
 
     page_number: int

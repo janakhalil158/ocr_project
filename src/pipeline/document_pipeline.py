@@ -236,7 +236,7 @@ def process_document(
                     progress("layout_analysis", f"Reconstructing layout for page {page_number}")
                     result.layout = analyze_layout(page_text.words)
                 else:
-                    progress("ocr", f"Native text unreliable on page {page_number}; falling back to EasyOCR")
+                    progress("ocr", f"Native text unreliable on page {page_number}; falling back to OCR")
                     image, ocr_result, ocr_error = _ocr_page(
                         pdf_path, page_number, ocr_engine, ocr_engine_error
                     )

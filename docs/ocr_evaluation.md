@@ -1,7 +1,12 @@
 # OCR Evaluation & Benchmarking
 
-Phase 5 measures OCR quality objectively, so Tesseract can be
-established as a **baseline** before any second engine is introduced.
+Phase 5 measures OCR quality objectively against ground truth, rather
+than trusting an engine's own confidence score. It was originally
+built to compare Tesseract against a future second engine; Baidu
+Unlimited-OCR is now the project's only engine (see
+`docs/ocr_architecture.md`), so today it's a straightforward
+accuracy/regression benchmark rather than a cross-engine comparison —
+the tooling and metrics below are unchanged either way.
 
 ## Why OCR confidence alone is not enough
 
@@ -148,7 +153,7 @@ Evaluation Dataset
        ┌──────┴──────┐
        ▼             ▼
    Tesseract     PaddleOCR
-    (now)        (future)
+  (removed)      (never built)
        │             │
        └──────┬──────┘
               ▼
@@ -164,9 +169,12 @@ Evaluation Dataset
 ```
 
 The evaluator calls `engine.process(image)` through the `OCREngine`
-interface and contains **no engine-specific logic** — which is what
-makes the Tesseract-vs-PaddleOCR comparison valid: identical images,
-identical ground truth, identical normalization, identical metrics.
+interface and contains **no engine-specific logic** — identical
+images, identical ground truth, identical normalization, identical
+metrics, whichever engine is configured. Baidu Unlimited-OCR
+(`src/ocr/unlimited_ocr.py`) is now the project's only engine; the
+diagram above and the historical notes below describe this module's
+original two-engine design intent, kept for context.
 
 ## Running an evaluation
 
@@ -178,7 +186,7 @@ identical ground truth, identical normalization, identical metrics.
 .venv/bin/python -m src.ocr.evaluation
 
 # Explicit engine / dataset / output location
-.venv/bin/python -m src.ocr.evaluation --engine tesseract \
+.venv/bin/python -m src.ocr.evaluation --engine unlimited \
     --dataset data/evaluation/dataset.json \
     --results-dir data/evaluation/results
 
@@ -205,22 +213,26 @@ Summary: sample/success/failure counts, average and median CER and WER,
 average confidence, average processing time, fastest and slowest
 samples, plus the same statistics broken down per category.
 
-## Tesseract as the baseline
+## Unlimited-OCR as the only engine
 
-Running the benchmark today records Tesseract's numbers on a fixed
-dataset. Those numbers are the reference point. When PaddleOCR is
-implemented, it is scored on the *same* dataset through the *same*
-evaluator, and the difference is attributable to the engine rather than
-to differences in data or measurement.
+Running the benchmark records Baidu Unlimited-OCR's numbers on a fixed
+dataset — there is no second engine to compare against (Tesseract and
+EasyOCR have been removed; PaddleOCR was never built). Unlimited-OCR
+does not report a confidence score (see `src/ocr/unlimited_ocr.py`),
+so `ocr_confidence` in the result format below is not meaningful for
+current runs — CER/WER against ground truth are the metrics that
+matter here.
 
-## Adding PaddleOCR later
+## Adding another engine later
 
-No changes to this evaluation layer are required. Implement
-`PaddleOCREngine(OCREngine)`, register it in `src/ocr/factory.py`, then:
+No changes to this evaluation layer would be required. Implement
+`SomeOtherEngine(OCREngine)`, register it in `src/ocr/factory.py`
+(which would then need to support more than one engine name again),
+then:
 
 ```bash
-.venv/bin/python -m src.ocr.evaluation --engine tesseract --results-dir data/evaluation/results/tesseract
-.venv/bin/python -m src.ocr.evaluation --engine paddleocr --results-dir data/evaluation/results/paddleocr
+.venv/bin/python -m src.ocr.evaluation --engine unlimited --results-dir data/evaluation/results/unlimited
+.venv/bin/python -m src.ocr.evaluation --engine some_other_engine --results-dir data/evaluation/results/some_other_engine
 ```
 
 ## A caution learned while building this

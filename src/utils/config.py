@@ -11,7 +11,7 @@ from __future__ import annotations
 import os
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional, Tuple
+from typing import Tuple
 
 import cv2
 
@@ -190,64 +190,66 @@ class OCRConfig:
     """
     Configurable parameters for Phase 4 OCR.
 
-    Engine-agnostic at the top (language, confidence handling); the
-    Tesseract-specific knobs (PSM/OEM/executable path) are grouped
-    separately since a future engine (e.g. PaddleOCR) won't have — or
-    need — those particular settings.
+    Engine-agnostic at the top (engine selection, language, confidence
+    handling); the Unlimited-OCR-specific knobs (model name/device/
+    dtype/generation length) are grouped separately since they're
+    meaningful only to that one engine.
     """
 
     # Which OCR engine implementation to use — selected by name through
     # src/ocr/factory.py so the rest of the pipeline never hardcodes a
-    # specific engine. "tesseract" and "easyocr" are both implemented;
-    # "paddleocr" is a prepared-but-not-installed future backend.
-    # Overridable via the OCR_ENGINE environment variable without
-    # touching code.
-    engine: str = os.environ.get("OCR_ENGINE", "easyocr")
+    # specific engine class. Baidu Unlimited-OCR ("unlimited") is the
+    # project's only supported engine; any other value is a controlled
+    # OCREngineNotAvailableError, not a silent fallback. Overridable
+    # via the OCR_ENGINE environment variable without touching code.
+    engine: str = os.environ.get("OCR_ENGINE", "unlimited")
 
     # Trained language data the engine should use. Project documents
     # are a mix of Arabic and English, so the default requests both
     # rather than privileging either one; callers needing a single
     # language (e.g. "eng" or "ara" alone) pass it explicitly.
+    # Unlimited-OCR is a vision-language model without discrete
+    # per-language packs — this is currently informational/carried
+    # through to the result rather than changing model behavior.
     language: str = "ara+eng"
 
-    # Recognized words are reported with a confidence on a 0-100
-    # scale; structural (non-word) rows are reported as -1. Only
-    # words at/above this threshold are kept in the result, which
-    # excludes those -1 rows by default without needing a special case.
+    # Recognized words/regions are reported with a confidence on a
+    # 0-100 scale; structural (non-word) rows are reported as -1. Only
+    # rows at/above this threshold are kept in the result, which
+    # excludes those -1 rows by default without needing a special
+    # case. Unlimited-OCR does not report real confidence (every row
+    # is a documented 0.0 placeholder — see src/ocr/unlimited_ocr.py),
+    # so with the default threshold every region is still kept; only a
+    # positive threshold would start excluding them.
     min_confidence: float = 0.0
 
     # --- Confidence bucketing (see src.ocr.models.confidence_level) ---
     # A page's mean confidence is not an absolute measure of OCR
-    # correctness — only an indicator of how sure the engine was.
+    # correctness — only an indicator of how sure the engine was. For
+    # Unlimited-OCR specifically, check
+    # PageOCRResult.metadata["confidence_available"] before treating
+    # this bucket as meaningful at all (see src/ocr/ocr.py).
     confidence_very_good_threshold: float = 90.0
     confidence_good_threshold: float = 75.0
     confidence_moderate_threshold: float = 50.0
 
-    # --- Tesseract-specific ---
-    # Page Segmentation Mode. 3 = fully automatic page segmentation,
-    # no orientation/script detection — a reasonable default for a
-    # single already-deskewed page produced by Phase 3.
-    psm: int = 3
+    # --- Unlimited-OCR-specific ---
+    # Hugging Face model id. Overridable via the UNLIMITED_OCR_MODEL
+    # environment variable.
+    unlimited_model_name: str = os.environ.get("UNLIMITED_OCR_MODEL", "baidu/Unlimited-OCR")
 
-    # OCR Engine Mode. 3 = use whichever of the legacy/LSTM engines is
-    # available (Tesseract's own default).
-    oem: int = 3
+    # Torch device string (e.g. "cuda", "cuda:0", "cpu"). Unlimited-OCR
+    # is a large multimodal model; GPU execution is the supported/
+    # expected path, not CPU. Overridable via UNLIMITED_OCR_DEVICE.
+    unlimited_device: str = os.environ.get("UNLIMITED_OCR_DEVICE", "cuda")
 
-    # Explicit path to the Tesseract executable, for machines where it
-    # isn't already on PATH (e.g. a MacPorts install at
-    # /opt/local/bin/tesseract). When ``None``, ``pytesseract`` falls
-    # back to whatever is on the system ``PATH``, which is the right
-    # default for most machines and avoids baking a machine-specific
-    # path into the code. Can also be supplied via the TESSERACT_CMD
-    # environment variable without editing code.
-    tesseract_cmd: Optional[str] = os.environ.get("TESSERACT_CMD") or None
+    # Torch dtype name the model weights are loaded in. Overridable
+    # via UNLIMITED_OCR_DTYPE.
+    unlimited_dtype: str = os.environ.get("UNLIMITED_OCR_DTYPE", "bfloat16")
 
-    # --- EasyOCR-specific ---
-    # Whether EasyOCR should use GPU acceleration. Defaults to CPU-only
-    # (False) so the pipeline never silently requires a GPU to run.
-    # Override via the EASYOCR_GPU environment variable (e.g. "1"/"true")
-    # once GPU support is available on a given machine.
-    easyocr_gpu: bool = os.environ.get("EASYOCR_GPU", "").strip().lower() in ("1", "true", "yes")
+    # Generation length cap passed to the model per page. Overridable
+    # via UNLIMITED_OCR_MAX_NEW_TOKENS.
+    unlimited_max_new_tokens: int = int(os.environ.get("UNLIMITED_OCR_MAX_NEW_TOKENS", "8192"))
 
 
 # Single shared instances used across the app unless overridden explicitly.

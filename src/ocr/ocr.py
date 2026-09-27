@@ -13,7 +13,7 @@ into actual text:
     Phase 4: extract_text()  -- this module
            |
            +-- delegates the actual recognition to an OCREngine
-           |   (src/ocr/base.py, src/ocr/tesseract_ocr.py)
+           |   (src/ocr/base.py, src/ocr/unlimited_ocr.py)
            |
            v
     PageOCRResult (text + per-word detail + confidence)
@@ -24,7 +24,7 @@ the engine-agnostic structured data an :class:`~src.ocr.base.OCREngine`
 returns (see that module's docstring for the exact shape) and turns it
 into a readable page string, a filtered word list, and a page-level
 confidence — logic that is written once here and applies identically
-whether the underlying engine is Tesseract today or PaddleOCR later.
+no matter which concrete engine produced the data.
 
 Design goals (mirroring Phase 2/3):
     * Do not resize, denoise, or otherwise modify the image here —
@@ -37,7 +37,7 @@ Design goals (mirroring Phase 2/3):
 from __future__ import annotations
 
 import time
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 import numpy as np
 
@@ -169,9 +169,54 @@ def _reconstruct_text(data: Dict, min_confidence: float) -> str:
     return "\n".join(lines)
 
 
+def _regions_from_raw_data(data: Dict) -> Optional[List[Dict[str, Any]]]:
+    """
+    Build per-region metadata from an engine's raw output, when that
+    engine reports region-level detail beyond the base Tesseract-shaped
+    contract: an optional ``region_type`` parallel list, and an
+    optional ``table_html`` one (see
+    :meth:`~src.ocr.unlimited_ocr.UnlimitedOCREngine.recognize_raw`).
+    Returns ``None`` when the engine didn't report this, so
+    :func:`extract_text` can omit the keys entirely rather than write
+    an empty/misleading structure -- this keeps the orchestration layer
+    working unchanged for any engine that only implements the base
+    word-level contract.
+
+    Unlike :func:`_words_from_raw_data` (which filters to confident,
+    non-empty text for the reconstructed page text/word list), every
+    detected region is kept here regardless of whether its text ended
+    up empty (e.g. a ``[Non-Text]`` region) -- the layout/region
+    information itself is still meaningful even when there's no text
+    to show for it.
+    """
+    if "region_type" not in data:
+        return None
+
+    row_count = len(data["text"])
+    table_html_list = data.get("table_html") or [None] * row_count
+
+    regions: List[Dict[str, Any]] = []
+    for i in range(row_count):
+        entry: Dict[str, Any] = {
+            "type": data["region_type"][i],
+            "text": data["text"][i],
+            "bounding_box": {
+                "x": int(data["left"][i]),
+                "y": int(data["top"][i]),
+                "width": int(data["width"][i]),
+                "height": int(data["height"][i]),
+            },
+        }
+        if table_html_list[i]:
+            entry["table_html"] = table_html_list[i]
+        regions.append(entry)
+
+    return regions
+
+
 def _default_engine(config: OCRConfig) -> OCREngine:
-    """Build the configured OCR engine from ``config`` (by default, Tesseract)."""
-    # Local import: src.ocr.factory imports TesseractOCREngine directly,
+    """Build the configured OCR engine from ``config`` (by default, Unlimited-OCR)."""
+    # Local import: src.ocr.factory imports UnlimitedOCREngine directly,
     # and importing it back at module scope here would only add an
     # unnecessary import-order constraint for no benefit — deferring it
     # keeps this module's own import list minimal.
@@ -197,12 +242,13 @@ def extract_text(
             entirely to Phase 3).
         page_number: 1-based page number, carried through to the result.
         config: OCR settings (language, confidence thresholds, and
-            Tesseract-specific PSM/OEM/executable path).
+            engine-specific settings such as Unlimited-OCR's model
+            name/device/dtype).
         engine: The :class:`~src.ocr.base.OCREngine` to use. Defaults
-            to a Tesseract engine built from ``config`` — pass a
-            different engine (e.g. a future PaddleOCR implementation,
-            or a test double) to swap it out without changing any
-            other code in this module.
+            to the configured engine (see ``src/ocr/factory.py``) built
+            from ``config`` — pass a different engine (e.g. a test
+            double) to swap it out without changing any other code in
+            this module.
 
     Returns:
         A :class:`~src.ocr.models.PageOCRResult` with the reconstructed
@@ -245,6 +291,22 @@ def extract_text(
         elapsed_ms,
     )
 
+    # `confidence_available` tells callers whether `mean_confidence`/
+    # `confidence_level` above are a genuine engine measurement or just
+    # the required-but-fabricated 0.0 placeholder (see
+    # src.ocr.unlimited_ocr's module docstring on confidence). Defaults
+    # to True so any engine that doesn't set
+    # `engine_reports_confidence` in its raw dict -- i.e. one that
+    # genuinely does report confidence -- keeps its existing behavior.
+    metadata: Dict[str, Any] = {
+        "confidence_available": bool(data.get("engine_reports_confidence", True)),
+    }
+
+    regions = _regions_from_raw_data(data)
+    if regions is not None:
+        metadata["regions"] = regions
+        metadata["tables"] = [r for r in regions if "table_html" in r]
+
     return PageOCRResult(
         page_number=page_number,
         text=text,
@@ -254,10 +316,7 @@ def extract_text(
         mean_confidence=mean_confidence,
         confidence_level=confidence_level(mean_confidence, thresholds),
         processing_time_ms=elapsed_ms,
-        metadata={
-            "psm": config.psm,
-            "oem": config.oem,
-        },
+        metadata=metadata,
     )
 
 
